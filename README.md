@@ -20,7 +20,7 @@ A simple Python tool that downloads audio from YouTube videos and transcribes th
 
 1. Clone this repository:
    ```
-   git clone https://github.com/daniel-carvajal/youtube-transcriber.git
+   git clone https://github.com/daniel-carvajal/youtube-whisper.git
    cd youtube-transcriber
    ```
 
