@@ -74,6 +74,8 @@ A powerful Python tool that downloads audio from YouTube videos and transcribes 
 
 ## Usage
 
+> **Note:** If you created a virtual environment in step 2, ensure it's activated before running the script. You'll know it's activated when you see `(venv)` at the beginning of your command prompt.
+
 Run the script and enter a YouTube URL when prompted:
 
 ```
