@@ -1,40 +1,51 @@
-# YouTube Video Transcriber
+# YouTube Transcript Tool
 
-A powerful Python tool that downloads audio from YouTube videos and transcribes them using OpenAI's Whisper speech recognition model, with timestamped segments for precise reference.
+A versatile Python tool that offers two powerful methods to get transcripts from YouTube videos:
+1. Fetch existing transcripts directly from YouTube using the YouTube Transcript API
+2. Download the video audio and transcribe it locally using OpenAI's Whisper speech recognition model
 
 ## Features
 
+### Common Features
+- Works with both YouTube URLs and video IDs
+- Saves timestamped transcripts to easily reference specific moments
+- Handles errors gracefully with informative messages
+- Organizes all transcripts in a dedicated directory
+
+### YouTube Transcript API Features
+- Lists all available languages for a video's transcript
+- Allows selecting specific language preferences
+- Option to preserve HTML formatting (like italics and bold)
+- Works with both manually created and auto-generated subtitles
+- No need to download the video's audio
+
+### Whisper Transcription Features
 - Downloads audio from any YouTube video using yt-dlp
 - Transcribes audio content with OpenAI's Whisper model
+- Shows which models are already downloaded on your system
+- Supports all Whisper model sizes (tiny through large and turbo)
 - Creates both full transcripts and timestamped segment files
-- Handles various audio formats and qualities
-- Uses content hashing to prevent duplicate downloads
-- Provides real-time progress updates during processing
 
 ## Requirements
 
-- Python 3.6 or higher
-- ffmpeg (required for audio processing)
-- Required Python packages (see requirements.txt)
+- Python 3.8 or higher
+- ffmpeg (required for audio processing with Whisper)
+- Required Python packages (automatically installed if missing):
+  - youtube-transcript-api
+  - openai-whisper
+  - yt-dlp
 
 ## Installation
 
 1. Clone this repository:
    ```
-   git clone https://github.com/daniel-carvajal/youtube-whisper.git
-   cd youtube-transcriber
+   git clone https://github.com/yourusername/youtube-transcript-tool.git
+   cd youtube-transcript-tool
    ```
 
-2. (Recommended) Set up a virtual environment to isolate dependencies:
+2. (Recommended) Set up a virtual environment:
    ```
-   # Install pyenv if not already installed
-   # On macOS/Linux
-   curl https://pyenv.run | bash
-   
-   # pyenv will automatically use the Python version specified in .python-version
-   # No need to manually set the Python version
-   
-   # Create and activate virtual environment
+   # Create virtual environment
    python -m venv venv
    
    # Activate on macOS/Linux
@@ -46,10 +57,10 @@ A powerful Python tool that downloads audio from YouTube videos and transcribes 
 
 3. Install required dependencies:
    ```
-   pip install -r requirements.txt
+   pip install youtube-transcript-api openai-whisper yt-dlp
    ```
 
-4. Install ffmpeg (required for audio processing):
+4. Install ffmpeg (required for audio processing with Whisper):
    
    **macOS**:
    ```
@@ -73,54 +84,76 @@ A powerful Python tool that downloads audio from YouTube videos and transcribes 
 
 ## Usage
 
-> **Note:** If you created a virtual environment in step 2, ensure it's activated before running the script. You'll know it's activated when you see `(venv)` at the beginning of your command prompt.
-
-Run the script and enter a YouTube URL when prompted:
-
+Run the script:
 ```
-python yt_transcribe.py
+python youtube_transcript_tool.py
 ```
 
 The program will:
-1. Download the audio from the YouTube video in MP3 format
-2. Load the Whisper model (default: "medium" model)
-3. Transcribe the audio with English language detection
-4. Save the full transcript to a text file
-5. Create a separate file with timestamped segments
-6. Display progress throughout the process
+1. Ask whether you want to fetch a transcript or download and transcribe locally
+2. Prompt for a YouTube URL or video ID
+3. Based on your choice:
+   - If fetching: Show available languages and formatting options
+   - If transcribing: Show available Whisper models (with checkmarks for already downloaded models)
+4. Process the video and save transcript files
+5. Display a preview of the transcript
 
 ## Output Files
 
-For each transcription, the tool generates:
-- `[hash].mp3`: The downloaded audio file
-- `[hash].txt`: The full transcript text
-- `[hash]_segments.txt`: Timestamped segments of the transcript
+For each YouTube video, the tool generates:
 
-## Customization
+### When fetching transcripts:
+- `[video_id]_transcript.txt`: Timestamped transcript from YouTube
 
-You can modify the script to use different Whisper models:
+### When transcribing locally:
+- `[video_id].mp3`: The downloaded audio file
+- `[video_id]_transcript.txt`: The full transcript text
+- `[video_id]_segments.txt`: Timestamped segments of the transcript
 
-- `tiny`: Fastest, least accurate (~1GB VRAM)
-- `base`: Good balance for most uses (~1GB VRAM)
-- `small`: More accurate, moderate speed (~2GB VRAM)
-- `medium`: High accuracy, slower (default, ~5GB VRAM)
-- `large`: Most accurate, slowest (~10GB VRAM)
-- `turbo`: Fast and relatively accurate (~6GB VRAM)
+## Whisper Models
 
-To change the model, modify the `model = whisper.load_model("medium")` line in the script.
+The tool supports all Whisper models with varying capabilities:
+
+| Model | Parameters | Description | Approx. VRAM Required |
+|-------|------------|-------------|----------------------|
+| tiny/tiny.en | 39M | Fastest, least accurate | ~1GB |
+| base/base.en | 74M | Fast, moderate accuracy | ~1GB |
+| small/small.en | 244M | Good balance for most uses | ~2GB |
+| medium/medium.en | 769M | High accuracy, moderate speed | ~5GB |
+| large/large-v1/large-v2/large-v3 | 1.5B | Most accurate, slowest | ~10GB |
+| large-v3-turbo/turbo | 1.5B+ | Fast and relatively accurate | ~10GB |
+
+The ".en" models are specialized for English and may perform better for English-only content. Parameter count and VRAM requirements based on official OpenAI documentation.
 
 ## How It Works
 
-This tool combines two powerful libraries:
-- **yt-dlp**: A feature-rich YouTube downloader, fork of youtube-dl with additional features and fixes
-- **OpenAI Whisper**: A general-purpose speech recognition model that can transcribe audio in multiple languages
+This tool combines three powerful libraries:
+- **YouTube Transcript API**: Retrieves existing transcripts directly from YouTube
+- **yt-dlp**: A feature-rich YouTube downloader for audio extraction
+- **OpenAI Whisper**: A state-of-the-art speech recognition model that can transcribe audio in multiple languages
 
-The script:
-1. Hashes the YouTube URL to create unique filenames
-2. Uses yt-dlp to download high-quality MP3 audio
-3. Loads the specified Whisper model
-4. Performs transcription with language detection
-5. Saves both the complete transcript and timestamped segments
+## Advanced Usage
+
+### Cookie Authentication for Age-Restricted Videos
+
+For age-restricted videos, you can provide a cookies.txt file:
+```python
+tool = YouTubeTranscriptTool(cookie_path='/path/to/your/cookies.txt')
+```
+
+### Working with Different Languages
+
+The tool lets you specify language preferences when fetching transcripts:
+```python
+result = tool.fetch_transcript(youtube_url, languages=['de', 'en'])  # Try German first, then English
+```
+
+### Customizing the Output Directory
+
+You can specify where to save transcripts and audio files:
+```python
+tool = YouTubeTranscriptTool(output_directory="my_transcripts")
+```
 
 ## License
 
@@ -128,5 +161,6 @@ The script:
 
 ## Acknowledgments
 
+- [YouTube Transcript API](https://github.com/jdepoix/youtube-transcript-api)
 - [OpenAI Whisper](https://github.com/openai/whisper)
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp)
