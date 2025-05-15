@@ -1,19 +1,20 @@
 # YouTube Video Transcriber
 
-A simple Python tool that downloads audio from YouTube videos and transcribes them using OpenAI's Whisper speech recognition model.
+A powerful Python tool that downloads audio from YouTube videos and transcribes them using OpenAI's Whisper speech recognition model, with timestamped segments for precise reference.
 
 ## Features
 
-- Downloads audio from any YouTube video
-- Automatically transcribes the audio content
-- Saves both the audio file and transcription text
-- Handles errors gracefully with retries
-- Simple command-line interface
+- Downloads audio from any YouTube video using yt-dlp
+- Transcribes audio content with OpenAI's Whisper model
+- Creates both full transcripts and timestamped segment files
+- Handles various audio formats and qualities
+- Uses content hashing to prevent duplicate downloads
+- Provides real-time progress updates during processing
 
 ## Requirements
 
 - Python 3.6 or higher
-- ffmpeg (required for Whisper)
+- ffmpeg (required for audio processing)
 - Required Python packages (see requirements.txt)
 
 ## Installation
@@ -24,28 +25,48 @@ A simple Python tool that downloads audio from YouTube videos and transcribes th
    cd youtube-transcriber
    ```
 
-2. Install required dependencies:
+2. (Recommended) Set up a virtual environment to isolate dependencies:
+   ```
+   # Install pyenv to manage Python versions (if needed)
+   # On macOS/Linux
+   curl https://pyenv.run | bash
+   
+   # Install desired Python version
+   pyenv install 3.10.0
+   pyenv local 3.10.0
+   
+   # Create and activate virtual environment
+   python -m venv venv
+   
+   # Activate on macOS/Linux
+   source venv/bin/activate
+   
+   # Activate on Windows
+   venv\Scripts\activate
+   ```
+
+3. Install required dependencies:
    ```
    pip install -r requirements.txt
    ```
 
-3. Install ffmpeg (required for audio processing):
-
-   **Ubuntu/Debian**:
-   ```
-   sudo apt update && sudo apt install ffmpeg
-   ```
-
+4. Install ffmpeg (required for audio processing):
+   
    **macOS**:
    ```
    brew install ffmpeg
    ```
-
+   
+   **Ubuntu/Debian**:
+   ```
+   sudo apt update && sudo apt install ffmpeg
+   ```
+   
    **Windows (with Chocolatey)**:
    ```
    choco install ffmpeg
    ```
-
+   
    **Windows (with Scoop)**:
    ```
    scoop install ffmpeg
@@ -56,34 +77,49 @@ A simple Python tool that downloads audio from YouTube videos and transcribes th
 Run the script and enter a YouTube URL when prompted:
 
 ```
-python youtube_transcriber.py
+python yt_transcribe.py
 ```
 
 The program will:
-1. Download the audio from the YouTube video
-2. Load the Whisper model (default: "base" model)
-3. Transcribe the audio
-4. Save the transcript to a text file
-5. Print the transcript to the console
+1. Download the audio from the YouTube video in MP3 format
+2. Load the Whisper model (default: "medium" model)
+3. Transcribe the audio with English language detection
+4. Save the full transcript to a text file
+5. Create a separate file with timestamped segments
+6. Display progress throughout the process
+
+## Output Files
+
+For each transcription, the tool generates:
+- `[hash].mp3`: The downloaded audio file
+- `[hash].txt`: The full transcript text
+- `[hash]_segments.txt`: Timestamped segments of the transcript
 
 ## Customization
 
 You can modify the script to use different Whisper models:
 
-- `tiny`: Fastest, least accurate
-- `base`: Good balance for most uses
-- `small`: More accurate, slower
-- `medium`: High accuracy, slower
-- `large`: Most accurate, slowest
-- `turbo`: Fast and relatively accurate
+- `tiny`: Fastest, least accurate (~1GB VRAM)
+- `base`: Good balance for most uses (~1GB VRAM)
+- `small`: More accurate, moderate speed (~2GB VRAM)
+- `medium`: High accuracy, slower (default, ~5GB VRAM)
+- `large`: Most accurate, slowest (~10GB VRAM)
+- `turbo`: Fast and relatively accurate (~6GB VRAM)
 
-To change the model, modify the `model = whisper.load_model("base")` line in the script.
+To change the model, modify the `model = whisper.load_model("medium")` line in the script.
 
 ## How It Works
 
 This tool combines two powerful libraries:
 - **yt-dlp**: A feature-rich YouTube downloader, fork of youtube-dl with additional features and fixes
 - **OpenAI Whisper**: A general-purpose speech recognition model that can transcribe audio in multiple languages
+
+The script:
+1. Hashes the YouTube URL to create unique filenames
+2. Uses yt-dlp to download high-quality MP3 audio
+3. Loads the specified Whisper model
+4. Performs transcription with language detection
+5. Saves both the complete transcript and timestamped segments
 
 ## License
 
