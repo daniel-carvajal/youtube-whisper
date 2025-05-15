@@ -27,13 +27,12 @@ A powerful Python tool that downloads audio from YouTube videos and transcribes 
 
 2. (Recommended) Set up a virtual environment to isolate dependencies:
    ```
-   # Install pyenv to manage Python versions (if needed)
+   # Install pyenv if not already installed
    # On macOS/Linux
    curl https://pyenv.run | bash
    
-   # Install desired Python version
-   pyenv install 3.10.0
-   pyenv local 3.10.0
+   # pyenv will automatically use the Python version specified in .python-version
+   # No need to manually set the Python version
    
    # Create and activate virtual environment
    python -m venv venv
